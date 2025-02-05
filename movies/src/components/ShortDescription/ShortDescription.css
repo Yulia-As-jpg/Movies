@@ -1,0 +1,15 @@
+.description-container {
+  width: 228px;
+  height: 129px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: wrap;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .description-container {
+    width: 367px;
+    height: 92px;
+  }
+}

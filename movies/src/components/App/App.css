@@ -1,0 +1,44 @@
+:where(.css-dev-only-do-not-override-cdzvx5).ant-layout-header {
+  background: #FFFFFF !important;
+}
+
+
+:where(.css-dev-only-do-not-override-cdzvx5).ant-layout-content {
+  color: #000000 !important;
+  background: #FFFFFF !important;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+}
+
+.app_movies .movies {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 35px
+}
+
+:where(.css-98ntnt).ant-flex-justify-center {
+  justify-content: center;
+}
+
+
+:where(.css-dev-only-do-not-override-cdzvx5).ant-layout-footer {
+  background: #FFFFFF !important;
+}
+
+@media (max-width: 640px) {
+  
+  .app_movies .movies {
+    width: 387px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .layout {
+    padding: 0 16px;
+  }
+}
