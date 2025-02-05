@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 
 import { Movie } from '../Types/types'
-import { Rate, Card } from 'antd'
 import TMBDService from '../../services/TMBDService'
 import ShortDescription from '../ShortDescription/ShortDescription'
-
+import { Rate, Card } from 'antd'
 import './MovieCard.css'
 
 const MoviesCard: React.FC<Movie> = ({

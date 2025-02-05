@@ -4,9 +4,9 @@ import { Movie, ApiResponse, Genre } from '../Types/types'
 import TMBDService from '../../services/TMBDService'
 import SearchForm from '../SearchForm/SearchForm'
 import MoviesList from '../MovieList/MoviesList'
+import debounce from 'lodash'
 import { Pagination, Tabs } from 'antd'
 import { Layout } from 'antd'
-import debounce from 'lodash'
 import './App.css'
 
 
