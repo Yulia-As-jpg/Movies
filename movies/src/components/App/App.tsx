@@ -5,7 +5,6 @@ import TMBDService from '../../services/TMBDService'
 import SearchForm from '../SearchForm/SearchForm'
 import MoviesList from '../MovieList/MoviesList'
 import debounce from 'lodash'
-import { StyleProvider } from '@ant-design/cssinjs';
 import { Pagination, Tabs } from 'antd'
 import { Layout } from 'antd'
 import './App.css'
@@ -182,7 +181,6 @@ const App: React.FC = () => {
   ]
 
   return (
-    <StyleProvider hashPriority="high">
       <GenresContext.Provider value={genres}>
       <Layout style={layoutStyle}>
         <Header style={headerStyle}>
@@ -219,8 +217,6 @@ const App: React.FC = () => {
         </Footer>
       </Layout>
     </GenresContext.Provider>
-    </StyleProvider>
-    
   )
 }
 export default App

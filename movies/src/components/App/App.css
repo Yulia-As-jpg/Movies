@@ -1,4 +1,4 @@
-:where(.css-dev-only-do-not-override-cdzvx5).ant-layout-header {
+.css-cdzvx5.ant-layout-header {
   background: #FFFFFF !important;
 }
 
@@ -20,12 +20,7 @@ main {
   gap: 35px
 }
 
-:where(.css-98ntnt).ant-flex-justify-center {
-  justify-content: center;
-}
-
-
-:where(.css-dev-only-do-not-override-cdzvx5).ant-layout-footer {
+.css-cdzvx5.ant-layout-header {
   background: #FFFFFF !important;
 }
 
