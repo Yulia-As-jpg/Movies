@@ -2,10 +2,19 @@
   background: #FFFFFF !important;
 }
 
+:where(.css-dev-only-do-not-override-cdzvx5).ant-layout-header {
+  background: #FFFFFF !important;
+}
 
-:where(.css-dev-only-do-not-override-cdzvx5).ant-layout-content {
+
+.css-cdzvx5.ant-layout-content {
   color: #000000 !important;
   background: #FFFFFF !important;
+}
+
+:where(.css-dev-only-do-not-override-cdzvx5).ant-layout-content {
+  color: #000000!important;
+  background: #FFFFFF!important;
 }
 
 main {
@@ -20,8 +29,12 @@ main {
   gap: 35px
 }
 
-.css-cdzvx5.ant-layout-header {
+.css-cdzvx5.ant-layout-footer {
   background: #FFFFFF !important;
+}
+
+:where(.css-dev-only-do-not-override-cdzvx5).ant-layout-footer {
+  background: #FFFFFF!important;
 }
 
 @media (max-width: 640px) {
