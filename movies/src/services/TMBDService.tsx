@@ -1,4 +1,4 @@
-import { Movie, ApiResponse, HttpMethod } from '../components/Types/types'
+import { ApiResponse, HttpMethod } from '../components/Types/types'
 
 class TMBDService {
   private baseUrl: string
@@ -56,7 +56,9 @@ class TMBDService {
     const url = this._endURL(`/movie/${movieId}/rating`, `&guest_session_id=${sessionId}`)
 
     const method = Math.ceil(rateValue) ? 'post' : 'delete'
-    return this._req(url, method, { value: rateValue })
+
+    const response = await this._req(url, method, { value: rateValue })
+    return response
   }
 
   async requestGenres(): Promise<ApiResponse> {
@@ -75,6 +77,8 @@ class TMBDService {
       voteAverage: movie.vote_average,
       genreIds: movie.genre_ids,
       rating: movie.rating || 0,
+      ratings: {},
+      setRating: (movieId: number, rating: number) => {},
     }))
 
     return {

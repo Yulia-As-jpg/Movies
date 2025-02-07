@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { Movie } from '../Types/types'
 import TMBDService from '../../services/TMBDService'
@@ -13,33 +13,29 @@ const MoviesCard: React.FC<Movie> = ({
   imgUrl = '',
   releaseDate = '',
   voteAverage = 0,
-  rating = undefined,
   voteAverageColor = '#e90000',
   genres = '',
   guestSession = null,
+  ratings,
+  setRating,
 }) => {
-  const [starRating, setStarRating] = useState<number | null>(null)
+  const [starRating, setStarRating] = useState<number | null>(ratings[movieId] || null)
   const api = new TMBDService()
 
   useEffect(() => {
     if (starRating !== null && starRating > 0) {
-      setRating()
-    } else if (starRating === null) {
-      deleteRating()
+      setRating(movieId, starRating)
+    } else if (starRating === 0) {
+      setRating(movieId, 0)
     }
-  }, [starRating])
+  }, [starRating, movieId, setRating])
 
-  const setRating = useCallback(() => {
-    if (starRating !== null && guestSession) {
-      api.rateMovie(movieId, guestSession, starRating)
-    }
-  }, [starRating, guestSession, movieId])
-
-  const deleteRating = useCallback(() => {
+  const handleRateChange = (value: number) => {
+    setStarRating(value)
     if (guestSession) {
-      api.rateMovie(movieId, guestSession, 0)
+      api.rateMovie(movieId, guestSession, value)
     }
-  }, [guestSession, movieId])
+  }
 
   const getGenresArray = (genres: string): string[] => {
     return genres.split(',').map((genre) => genre.trim())
@@ -55,42 +51,33 @@ const MoviesCard: React.FC<Movie> = ({
   }
 
   return (
-     <Card style={{ width :451, borderRadius: 0, border: 0}}>
-        <div className='card-content'>
-       <li className='card'>
-      <img alt="example" src={imgUrl} className="poster-movie" />
-         <h5 className="title">{titleShort (title, 25)}</h5>
-        <div className='rating'>
-        <div className="rating-info" style={{ borderColor: voteAverageColor }}>
-           {voteAverage}
-         </div>
-         </div>
-         <div className="info">
-           <p className="card-info_date">{releaseDate}</p>
-           <ul className="card-info_genres">
-             {genresArray.map((genre, index) => (
-               <li key={index}>{genre}</li>
-             ))}
-           </ul>
-         </div>
-         <div className="desc">
-           <ShortDescription description={description} />
-         </div>
-         <div className="star-container">
-           <Rate
-             className="star"
-             count={10}
-             allowHalf
-             defaultValue={rating || starRating}
-             onChange={(st: number) => setStarRating(st)}
-           />
-         </div>
-       </li>
-     </div>
-     </Card>
-    
-      
-     
+    <Card style={{ width: 451, borderRadius: 0, border: 0 }}>
+      <div className="card-content">
+        <li className="card">
+          <img alt="example" src={imgUrl} className="poster-movie" />
+          <h5 className="title">{titleShort(title, 25)}</h5>
+          <div className="rating">
+            <div className="rating-info" style={{ borderColor: voteAverageColor }}>
+              {voteAverage}
+            </div>
+          </div>
+          <div className="info">
+            <p className="card-info_date">{releaseDate}</p>
+            <ul className="card-info_genres">
+              {genresArray.map((genre, index) => (
+                <li key={index}>{genre}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="desc">
+            <ShortDescription description={description} />
+          </div>
+          <div className="star-container">
+            <Rate className="star" count={10} allowHalf value={starRating} onChange={handleRateChange} />
+          </div>
+        </li>
+      </div>
+    </Card>
   )
 }
 

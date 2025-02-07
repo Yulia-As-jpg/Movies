@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { format } from 'date-fns'
 import MovieCard from '../MovieCard/MovieCard'
+import { imgSrc, voteColor } from '../utils/utils'
 import { Alert, Spin } from 'antd'
-import { Flex } from 'antd'
 
 import { MoviesProps } from '../Types/types'
 
@@ -14,43 +14,10 @@ const MoviesList: React.FC<MoviesProps> = ({
   guestSession,
   activeTab,
   genres,
+  ratings,
+  setRating,
 }) => {
-  const [message, setMessage] = useState<string | null>(null)
-
-  useEffect(() => {
-    const message = Number(activeTab) === 1 ? 'The search not given any results' : 'No rated films'
-    setMessage(message)
-  }, [activeTab])
-
-  useEffect(() => {
-    const message = Number(activeTab) === 1 ? 'Enter your search term' : 'No rated films'
-    setMessage(message)
-  }, [moviesData, activeTab])
-
-  const makeTeaser = useCallback((text: string) => {
-    if (!text) return null
-    let teaser = text.split(' ').splice(0, 18).join(' ')
-
-    if (teaser.match(/[.,!?]$/)) teaser = teaser.replace(/[.,!?]$/, ' ...')
-    else teaser += ' ...'
-
-    return teaser
-  }, [])
-
-  const imgSrc = useCallback((img: string) => {
-    return img
-      ? `https://image.tmdb.org/t/p/original/${img}`
-      : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTE1BFq0h-RvrEBWCMPudD2QMYcG2BDJVDYNw&usqp=CAU'
-  }, [])
-
-  const voteColor = useCallback((vote: number) => {
-    let voteAverageColor
-    if (vote > 7) voteAverageColor = '#66e900'
-    else if (vote > 5) voteAverageColor = '#e9d100'
-    else if (vote > 3) voteAverageColor = '#e97e00'
-    else voteAverageColor = '#e90000'
-    return voteAverageColor
-  }, [])
+  const message = activeTab === '1' ? 'The search not given any results' : 'No rated films'
 
   const renderMovies = useCallback(() => {
     if (!moviesData.length) {
@@ -66,23 +33,25 @@ const MoviesList: React.FC<MoviesProps> = ({
         .join(', ')
 
       return (
-          <MovieCard
-            key={id}
-            id={id}
-            title={title}
-            description={description || ''}
-            imgUrl={imgSrc(imgUrl)}
-            releaseDate={releaseDate ? format(new Date(releaseDate), 'PP') : 'Data unknown'}
-            voteAverage={+voteAverage.toFixed(1)}
-            rating={rating}
-            genres={genreNames}
-            guestSession={guestSession}
-            voteAverageColor={voteColor(voteAverage)}
-            genreIds={genreIds}
-          />
+        <MovieCard
+          key={id}
+          id={id}
+          title={title}
+          description={description || ''}
+          imgUrl={imgSrc(imgUrl)}
+          releaseDate={releaseDate ? format(new Date(releaseDate), 'PP') : 'Data unknown'}
+          voteAverage={+voteAverage.toFixed(1)}
+          rating={rating}
+          genres={genreNames}
+          guestSession={guestSession}
+          voteAverageColor={voteColor(voteAverage)}
+          genreIds={genreIds}
+          ratings={ratings}
+          setRating={setRating}
+        />
       )
     })
-  }, [moviesData, genres, guestSession, makeTeaser, imgSrc, voteColor, message])
+  }, [moviesData, genres, guestSession, imgSrc, voteColor, message])
 
   const error =
     isError || !navigator.onLine ? (

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 
 import { Input } from 'antd'
 import { SearchFormProps } from '../Types/types'
@@ -6,11 +6,16 @@ import { SearchFormProps } from '../Types/types'
 const SearchForm: React.FC<SearchFormProps> = ({ onSearchProgress, onSearchChange, query }) => {
   const [searchValue, setSearchValue] = useState<string>(query || '')
 
+  useEffect(() => {
+    setSearchValue(query || '')
+  }, [query])
+
   const onUpdateValue = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchValue(event.target.value)
+      const newValue = event.target.value
+      setSearchValue(newValue)
       onSearchProgress()
-      onSearchChange(event.target.value)
+      onSearchChange(newValue)
     },
     [onSearchProgress, onSearchChange]
   )

@@ -22,6 +22,8 @@ export interface Movie {
   voteAverageColor?: string
   genres?: string
   guestSession?: string | null
+  ratings: { [key: number]: number }
+  setRating: (movieId: number, rating: number) => void
 }
 
 export interface MoviesProps {
@@ -32,6 +34,8 @@ export interface MoviesProps {
   guestSession: string | null
   genres: { id: number; name: string }[]
   activeTab: string
+  ratings: { [key: number]: number }
+  setRating: (movieId: number, rating: number) => void
 }
 
 export interface SearchFormProps {
@@ -56,9 +60,6 @@ export interface Genre {
   name: string
 }
 
-
 export interface ShortDescriptionProps {
-  description: string;
+  description: string
 }
-
-

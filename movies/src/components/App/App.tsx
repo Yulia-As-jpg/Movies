@@ -4,11 +4,10 @@ import { Movie, ApiResponse, Genre } from '../Types/types'
 import TMBDService from '../../services/TMBDService'
 import SearchForm from '../SearchForm/SearchForm'
 import MoviesList from '../MovieList/MoviesList'
-import debounce from 'lodash'
+import debounce from 'lodash/debounce'
 import { Pagination, Tabs } from 'antd'
 import { Layout } from 'antd'
 import './App.css'
-
 
 const { Header, Footer, Content } = Layout
 
@@ -53,6 +52,7 @@ const App: React.FC = () => {
   })
 
   const [genres, setGenres] = useState<Genre[]>([])
+  const [ratings, setRatings] = useState<{ [key: number]: number }>({})
 
   const api = useMemo(() => new TMBDService(), [])
 
@@ -66,23 +66,13 @@ const App: React.FC = () => {
     const { activeTab, currentPage, query } = state
     if (query !== '') {
       if (query.match(/^\s*/)) setState((prevState) => ({ ...prevState, query: query.trim() }))
-      if (query) getMovies(query)
+      if (query) getMovies(query, currentPage)
       if (!query) setState((prevState) => ({ ...prevState, loading: false }))
     }
 
-    if (currentPage !== 1) {
-      getMovies(query, currentPage)
-    }
-
-    if (activeTab !== '1') {
-      if (activeTab === '1') {
-        onSearchProgress()
-        getMovies(query)
-      }
-      if (activeTab === '2') {
-        onSearchProgress()
-        getRatedMovies()
-      }
+    if (activeTab === '2') {
+      onSearchProgress()
+      getRatedMovies()
     }
   }, [state.activeTab, state.currentPage, state.query])
 
@@ -122,19 +112,20 @@ const App: React.FC = () => {
   }, [])
 
   const handleSearchChange = (query: string) => {
-    setState((prevState) => ({ ...prevState, query }))
+    setState((prevState) => ({ ...prevState, query, currentPage: 1 }))
+    getMovies(query, 1)
   }
 
   const onSearchChange = useMemo(
     () =>
-      debounce((query: any) => {
-        setQuery(query)
+      debounce((query: string) => {
+        handleSearchChange(query)
       }),
     []
-  )
+  ) as unknown as (query: string) => void
 
   const getMovies = useCallback(
-    (query: string, page = 1) => {
+    (query: string, page: number | undefined) => {
       api.requestMovies(query, page).then(onContentLoaded).catch(onError)
     },
     [api, onContentLoaded, onError]
@@ -151,6 +142,10 @@ const App: React.FC = () => {
     }
   }, [api, state.guestSession, onContentLoaded, onError])
 
+  const setRating = useCallback((movieId: number, rating: number) => {
+    setRatings((prevRatings) => ({ ...prevRatings, [movieId]: rating }))
+  }, [])
+
   const getGenres = useCallback(() => {
     api.requestGenres().then((response: ApiResponse) => {
       setGenres(response.genres)
@@ -158,7 +153,7 @@ const App: React.FC = () => {
   }, [api])
 
   const onTabChange = useCallback((activeTab: string) => {
-    setState((prevState) => ({ ...prevState, activeTab }))
+    setState((prevState) => ({ ...prevState, activeTab, error: false, errorMessage: null, moviesData: [] }))
   }, [])
 
   const onSearchProgress = useCallback(() => {
@@ -171,7 +166,7 @@ const App: React.FC = () => {
     {
       key: '1',
       label: 'Search',
-      children: <SearchForm onSearchChange={handleSearchChange} onSearchProgress={onSearchProgress} query={query} />,
+      children: <SearchForm onSearchChange={onSearchChange} onSearchProgress={onSearchProgress} query={query} />,
     },
     {
       key: '2',
@@ -181,25 +176,27 @@ const App: React.FC = () => {
   ]
 
   return (
-      <GenresContext.Provider value={genres}>
+    <GenresContext.Provider value={genres}>
       <Layout style={layoutStyle}>
         <Header style={headerStyle}>
           <Tabs defaultActiveKey="1" items={items} centered onChange={onTabChange} />
         </Header>
-        <Content className='app_movies movies'>
+        <Content className="app_movies movies">
           <GenresContext.Consumer>
-              {(genresConsumer) => (
-                <MoviesList
-                  moviesData={moviesData}
-                  isLoading={loading}
-                  isError={error}
-                  errorMessage={errorMessage}
-                  guestSession={guestSession}
-                  genres={genresConsumer}
-                  activeTab={activeTab}
-                />
-              )}
-            </GenresContext.Consumer>
+            {(genresConsumer) => (
+              <MoviesList
+                moviesData={moviesData}
+                isLoading={loading}
+                isError={error}
+                errorMessage={errorMessage}
+                guestSession={guestSession}
+                genres={genresConsumer}
+                activeTab={activeTab}
+                ratings={ratings}
+                setRating={setRating}
+              />
+            )}
+          </GenresContext.Consumer>
         </Content>
         <Footer style={footerStyle}>
           <div className="app__pagination">
