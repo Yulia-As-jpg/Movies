@@ -47,9 +47,9 @@ class TMBDService {
     return this._req(url)
   }
 
-  async requestRatedMovies(authId: string): Promise<ApiResponse> {
-    const url = this._endURL(`/guest_session/${authId}/rated/movies`)
-    return this._req(url)
+  async requestRatedMovies(authId: string, page: number = 1): Promise<ApiResponse> {
+    const url = this._endURL(`/guest_session/${authId}/rated/movies`, `&page=${page}`);
+    return this._req(url);
   }
 
   async rateMovie(movieId: number, sessionId: string, rateValue: number): Promise<ApiResponse> {

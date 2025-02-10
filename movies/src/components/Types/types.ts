@@ -32,7 +32,6 @@ export interface MoviesProps {
   isError: boolean
   errorMessage: string | null
   guestSession: string | null
-  genres: { id: number; name: string }[]
   activeTab: string
   ratings: { [key: number]: number }
   setRating: (movieId: number, rating: number) => void

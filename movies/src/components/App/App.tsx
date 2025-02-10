@@ -26,7 +26,7 @@ const layoutStyle = {
   overflow: 'hidden',
 }
 
-const GenresContext = createContext<Genre[]>([])
+export const GenresContext = createContext<Genre[]>([])
 
 const App: React.FC = () => {
   const [state, setState] = useState<{
@@ -72,7 +72,7 @@ const App: React.FC = () => {
 
     if (activeTab === '2') {
       onSearchProgress()
-      getRatedMovies()
+      getRatedMovies(currentPage)
     }
   }, [state.activeTab, state.currentPage, state.query])
 
@@ -108,8 +108,16 @@ const App: React.FC = () => {
       ...prevState,
       currentPage: page,
       loading: true,
-    }))
-  }, [])
+    }));
+  
+    const { activeTab, query } = state;
+    if (activeTab === '1') {
+      getMovies(query, page);
+    } else if (activeTab === '2') {
+      getRatedMovies(page);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}, [state.activeTab, state.query]);
 
   const handleSearchChange = (query: string) => {
     setState((prevState) => ({ ...prevState, query, currentPage: 1 }))
@@ -120,9 +128,9 @@ const App: React.FC = () => {
     () =>
       debounce((query: string) => {
         handleSearchChange(query)
-      }),
+      }, 300),
     []
-  ) as unknown as (query: string) => void
+  )
 
   const getMovies = useCallback(
     (query: string, page: number | undefined) => {
@@ -135,15 +143,19 @@ const App: React.FC = () => {
     api.requestSession().then(onSessionSuccess)
   }, [api, onSessionSuccess])
 
-  const getRatedMovies = useCallback(() => {
-    const { guestSession } = state
-    if (guestSession) {
-      api.requestRatedMovies(guestSession).then(onContentLoaded).catch(onError)
-    }
-  }, [api, state.guestSession, onContentLoaded, onError])
+  const getRatedMovies = useCallback(
+    (page: number) => {
+      const { guestSession } = state
+      if (guestSession) {
+        api.requestRatedMovies(guestSession, page).then(onContentLoaded).catch(onError)
+      }
+    },
+    [api, state.guestSession, onContentLoaded, onError]
+  )
 
   const setRating = useCallback((movieId: number, rating: number) => {
-    setRatings((prevRatings) => ({ ...prevRatings, [movieId]: rating }))
+    setRatings((prevRatings) => 
+      ({ ...prevRatings, [movieId]: rating }))
   }, [])
 
   const getGenres = useCallback(() => {
@@ -152,9 +164,26 @@ const App: React.FC = () => {
     })
   }, [api])
 
-  const onTabChange = useCallback((activeTab: string) => {
-    setState((prevState) => ({ ...prevState, activeTab, error: false, errorMessage: null, moviesData: [] }))
-  }, [])
+  const onTabChange = useCallback(
+    (activeTab: string) => {
+      setState((prevState) => ({
+        ...prevState,
+        activeTab,
+        error: false,
+        errorMessage: null,
+        moviesData: [],
+        currentPage: 1,
+      }))
+
+      if (activeTab === '1') {
+        handleSearchChange(state.query)
+      } else if (activeTab === '2') {
+        onSearchProgress()
+        getRatedMovies(1)
+      }
+    },
+    [state.query]
+  )
 
   const onSearchProgress = useCallback(() => {
     setState((prevState) => ({ ...prevState, loading: true }))
@@ -182,21 +211,16 @@ const App: React.FC = () => {
           <Tabs defaultActiveKey="1" items={items} centered onChange={onTabChange} />
         </Header>
         <Content className="app_movies movies">
-          <GenresContext.Consumer>
-            {(genresConsumer) => (
-              <MoviesList
-                moviesData={moviesData}
-                isLoading={loading}
-                isError={error}
-                errorMessage={errorMessage}
-                guestSession={guestSession}
-                genres={genresConsumer}
-                activeTab={activeTab}
-                ratings={ratings}
-                setRating={setRating}
-              />
-            )}
-          </GenresContext.Consumer>
+          <MoviesList
+            moviesData={moviesData}
+            isLoading={loading}
+            isError={error}
+            errorMessage={errorMessage}
+            guestSession={guestSession}
+            activeTab={activeTab}
+            ratings={ratings}
+            setRating={setRating}
+          />
         </Content>
         <Footer style={footerStyle}>
           <div className="app__pagination">
@@ -204,7 +228,7 @@ const App: React.FC = () => {
               <Pagination
                 size="middle"
                 align="center"
-                total={totalPages}
+                total={totalPages * 10}
                 showSizeChanger={false}
                 current={currentPage}
                 onChange={onPaginationChange}

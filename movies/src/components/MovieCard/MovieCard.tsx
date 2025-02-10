@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 
 import { Movie } from '../Types/types'
 import TMBDService from '../../services/TMBDService'
 import ShortDescription from '../ShortDescription/ShortDescription'
 import { Rate, Card } from 'antd'
 import './MovieCard.css'
+import {GenresContext} from '../App/App'
 
 const MoviesCard: React.FC<Movie> = ({
   id: movieId,
@@ -14,13 +15,14 @@ const MoviesCard: React.FC<Movie> = ({
   releaseDate = '',
   voteAverage = 0,
   voteAverageColor = '#e90000',
-  genres = '',
   guestSession = null,
   ratings,
   setRating,
+  genreIds,
 }) => {
   const [starRating, setStarRating] = useState<number | null>(ratings[movieId] || null)
   const api = new TMBDService()
+  const genres = useContext(GenresContext)
 
   useEffect(() => {
     if (starRating !== null && starRating > 0) {
@@ -37,11 +39,11 @@ const MoviesCard: React.FC<Movie> = ({
     }
   }
 
-  const getGenresArray = (genres: string): string[] => {
-    return genres.split(',').map((genre) => genre.trim())
+  const getGenresArray = (genreIds: number[]): string[] => {
+    return genres.filter((genre) => genreIds.includes(genre.id)).map((genre) => genre.name)
   }
 
-  const genresArray = getGenresArray(genres)
+  const genresArray = getGenresArray(genreIds)
 
   const titleShort = (title: string, maxLength: number) => {
     if (title.length > maxLength) {

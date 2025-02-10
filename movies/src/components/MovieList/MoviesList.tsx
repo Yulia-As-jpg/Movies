@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, {  useCallback, useContext } from 'react'
 import { format } from 'date-fns'
 import MovieCard from '../MovieCard/MovieCard'
 import { imgSrc, voteColor } from '../utils/utils'
 import { Alert, Spin } from 'antd'
-
+import {GenresContext} from "../App/App"
 import { MoviesProps } from '../Types/types'
 
 const MoviesList: React.FC<MoviesProps> = ({
@@ -13,11 +13,11 @@ const MoviesList: React.FC<MoviesProps> = ({
   errorMessage,
   guestSession,
   activeTab,
-  genres,
   ratings,
   setRating,
 }) => {
   const message = activeTab === '1' ? 'The search not given any results' : 'No rated films'
+  const genres = useContext(GenresContext)
 
   const renderMovies = useCallback(() => {
     if (!moviesData.length) {
@@ -25,12 +25,7 @@ const MoviesList: React.FC<MoviesProps> = ({
     }
 
     return moviesData.map((movie) => {
-      const { id, title, description, imgUrl, releaseDate, voteAverage, rating, genreIds } = movie
-
-      const genreNames = genres
-        .filter((genre) => genreIds.includes(genre.id))
-        .map((genre) => genre.name)
-        .join(', ')
+      const { id, title, description, imgUrl, releaseDate, voteAverage, genreIds } = movie
 
       return (
         <MovieCard
@@ -41,17 +36,15 @@ const MoviesList: React.FC<MoviesProps> = ({
           imgUrl={imgSrc(imgUrl)}
           releaseDate={releaseDate ? format(new Date(releaseDate), 'PP') : 'Data unknown'}
           voteAverage={+voteAverage.toFixed(1)}
-          rating={rating}
-          genres={genreNames}
+          genreIds={genreIds}
           guestSession={guestSession}
           voteAverageColor={voteColor(voteAverage)}
-          genreIds={genreIds}
           ratings={ratings}
           setRating={setRating}
         />
       )
     })
-  }, [moviesData, genres, guestSession, imgSrc, voteColor, message])
+  }, [moviesData, guestSession, imgSrc, voteColor, message])
 
   const error =
     isError || !navigator.onLine ? (
